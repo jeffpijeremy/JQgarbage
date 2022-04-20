@@ -211,7 +211,7 @@
             }
             else{
                 IRRErrorMessage=`IRR: GenerateINVStatus("IRR_"; .iRRIndexes; .data),`
-                IRRValue=`GenerateA("IRR_"; .iRRIndexes; "IRR"; .data)`
+                IRRValue=`GenerateIRRArray("IRR_"; .iRRIndexes; "IRR"; .data)`
             }
             var PVtempValue=``
             var PVtempErrorMessage=``
@@ -373,6 +373,7 @@
             console.log(checkarr);
             if (!check) return 
               message_box.innerText = `def FormatFloat: . * 100 | floor | . / 100;
+def IRRFormatFloat: . * 1000 | floor | . / 1000;
 def GenerateCapacity($source_indexes):
     map(   
         $source_indexes
@@ -436,6 +437,16 @@ def GenerateByIndex($source_prefix; $source_indexes; $tag_prefix; $tag_indexes; 
     )
 ;
 def GenerateA($source_prefix; $source_indexes; $a; $data):
+    $source_indexes | map(
+        if $data."\\($source_prefix+(.|tostring))".status == 0 then(
+            if ($data."\\($source_prefix+(.|tostring))"."\\($a)" ) > 0 
+            then
+            $data."\\($source_prefix+(.|tostring))"."\\($a)" | FormatFloat
+            else 0 end )
+        else 0 end
+    )
+;
+def GenerateIRRArray($source_prefix; $source_indexes; $a; $data):
     $source_indexes | map(
         if $data."\\($source_prefix+(.|tostring))".status == 0 then(
             if ($data."\\($source_prefix+(.|tostring))"."\\($a)" ) > 0 
