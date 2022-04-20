@@ -451,7 +451,7 @@ def GenerateIRRArray($source_prefix; $source_indexes; $a; $data):
         if $data."\\($source_prefix+(.|tostring))".status == 0 then(
             if ($data."\\($source_prefix+(.|tostring))"."\\($a)" ) > 0 
             then
-            $data."\\($source_prefix+(.|tostring))"."\\($a)" | FormatFloat
+            $data."\\($source_prefix+(.|tostring))"."\\($a)" | IRRFormatFloat
             else 0 end )
         else 0 end
     )
