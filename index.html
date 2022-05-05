@@ -65,6 +65,7 @@
             <!--<option value="SolarEventIndexes">solaredge SE27.6K</option>-->
             <option value="HUAWEISUN2000EventIndexes">華為SUN2000</option>
             <option value="HUAWEI36KTLIndexes">華為36KTL</option>
+            <option value="Others">其他未知</option>
         </select>
         <p></p>
         <label>是否有高壓盤</label>
@@ -194,6 +195,13 @@
                 case "SolarEventIndexes":
                     EFF=`GenerateADivideB("inv_"; .inverterIndexes; "acp"; "dcp"; .data)`
                     break;
+                case "Others":
+                    PV_P = `GenerateCalculateABCrossorByIndexanddivide1000("inv_"; .inverterIndexes; "pv_a"; "pv_v"; .PVIndexes; .data)`
+                    POWER_R = `GenerateABDivisor("inv_"; .inverterIndexes; "Vrs"; "Rc"; 1730; .data)`
+                    POWER_S = `GenerateABDivisor("inv_"; .inverterIndexes; "Vst"; "Sc"; 1730; .data)`
+                    POWER_T = `GenerateABDivisor("inv_"; .inverterIndexes; "Vrt"; "Tc"; 1730; .data)`
+                    EFF=`GenerateADivideB("inv_"; .inverterIndexes; "acp"; "dcp"; .data)`
+                break;
             }
             console.log(HVMeter)
             console.log(LVMeter)
