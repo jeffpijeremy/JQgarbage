@@ -549,6 +549,16 @@ def GenerateADivideB($source_prefix; $source_indexes; $a; $b; $data):
         else 0 end
     )
 ;
+def GenerateInsulationA($source_prefix; $source_indexes; $a; $data):
+    $source_indexes | map(
+        if $data."\\($source_prefix+(.|tostring))".status == 0 then(
+            if ($data."\\($source_prefix+(.|tostring))"."\\($a)" ) > 0 
+            then
+            $data."\\($source_prefix+(.|tostring))"."\\($a)" | IRRFormatFloat
+            else 0 end )
+        else 0 end
+    )
+;
 {
     inverterIndexes: [${INVARR}],
     PVIndexes: [${MPPTARR}],
@@ -586,7 +596,7 @@ def GenerateADivideB($source_prefix; $source_indexes; $a; $b; $data):
         E_today: GenerateA("inv_"; .inverterIndexes; "E_today"; .data),
         AC_kWh: GenerateA("inv_"; .inverterIndexes; "AC_kwh"; .data),
         freq: GenerateA("inv_"; .inverterIndexes; "freq"; .data),
-        Insulation: GenerateA("inv_"; .inverterIndexes; "Insulation"; .data),
+        Insulation: GenerateInsulationA("inv_"; .inverterIndexes; "Insulation"; .data),
         event: [
             ${EVENTARR}
           ],
