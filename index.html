@@ -110,14 +110,24 @@
             <option value="0">否</option>
         </select>
         <p></p>
+        
         <button type="button" onclick="createInput()">依照INV數量生成裝置容量輸入表格</button>
         <p>請自行新增每台裝置容量:</p>
         <label>各inv容量:</label>
         <div id="inputBox">
         </div>
+
         <p></p>
-        <button type="button" onclick="getValue()">getcapacityvalue to JQ</button>
-        <p id="demo"></p>
+        <button type="button" onclick="createACkwhbaseInput()">生成ACkwh基準值表格</button>
+        <p>請自行新增每台累積發電量基準值:</p>
+        <label>各inv累積發電量基準值(若無請填0):</label>
+        <div id="ACkwhbaseinputBox">
+        </div>
+
+        <p></p>
+        <button type="button" onclick="getValue()">getvalue to JQ</button>
+        <p id="capacitydemo"></p>
+        <p id="ACkwhbasedemo"></p>
       </form> 
         <div id ="element" style= "visibility: hidden;">
         <p></p>
@@ -143,24 +153,48 @@
             console.log(inputLength)
           }
               createInput()
-          function getValue(){
-            var capacity = document.getElementsByName('capacity_text[]');
-            for (var i = 0; i <capacity.length; i++) {
-            AllCapacity[i]=capacity[i].value;
-                document.getElementById("demo").innerHTML = AllCapacity;
+
+
+            const ACkwhbaseinputBox = document.getElementById('ACkwhbaseinputBox')
+            function createACkwhbaseInput () {
+                let inputLength = Number(INVNumber_text.value);
+                ACkwhbaseinputBox.innerHTML = ''
+                for (let i = 0; i < inputLength; i++){
+                const input = document.createElement('input')
+                input.name = 'ACkwhbase_text[]'
+                input.type = 'number'
+                ACkwhbaseinputBox.appendChild(input)
+                }
+                console.log(inputLength)
+                }
+
+                const ACkwhbasevalueARR = []
+                createACkwhbaseInput ()
+            function getValue(){
+                var capacity = document.getElementsByName('capacity_text[]');
+                for (let i = 0; i <capacity.length; i++) {
+                AllCapacity[i]=capacity[i].value;
+                    document.getElementById("capacitydemo").innerHTML = AllCapacity;
+                }
+                const ACkwhbase = document.getElementsByName('ACkwhbase_text[]');
+                for (let i = 0; i <ACkwhbase.length; i++) {
+                ACkwhbasevalueARR[i]=ACkwhbase[i].value;
+                    document.getElementById("ACkwhbasedemo").innerHTML = ACkwhbasevalueARR;
+                }
+                element.style.visibility = 'visible'
             }
-            element.style.visibility = 'visible'
-          }
             function download () {
             var element = document.createElement('a')
             element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(message_box.innerText)) // 
             element.setAttribute('download', 'sendOutFormat.jq')  //sendOutFormat.jq 檔案名稱
             element.click()
-          }
+             }
+         
           // 在此定義函數 名稱
           // 加入event使其適用於其他瀏覽器
           function calculate(event)
           {
+            
             // message_box.stop();
             // 定義函數內部可被使用的變數。
            
@@ -369,7 +403,17 @@
                 EVENTARR.push(`EventOneArray("inv_${i}"; .${INVevent}; .data)`)
                 }
             }
+            const ACkwhARR = []
+            for (let i = 1; i <= INVNumber; i++) {
+                if (i<10){
+                    ACkwhARR.push(`(.data.inv_0${i} | if .status == 0 then (.AC_kwh + ${ACkwhbasevalueARR[i-1]})*100 |floor| . /100 else 0 end)`)
+                } 
+                else {
+                    ACkwhARR.push(`(.data.inv_${i} | if .status == 0 then (.AC_kwh + ${ACkwhbasevalueARR[i-1]})*100 |floor| . /100 else 0 end)`)
+                }
+            }
 
+            
 
             console.log(INVARR);
             console.log(MPPTARR);
@@ -594,7 +638,9 @@ def GenerateInsulationA($source_prefix; $source_indexes; $a; $data):
         acp: GenerateA("inv_"; .inverterIndexes; "acp"; .data),
         dcp: GenerateA("inv_"; .inverterIndexes; "dcp"; .data),
         E_today: GenerateA("inv_"; .inverterIndexes; "E_today"; .data),
-        AC_kWh: GenerateA("inv_"; .inverterIndexes; "AC_kwh"; .data),
+        AC_kWh: [
+            ${ACkwhARR}
+        ],
         freq: GenerateA("inv_"; .inverterIndexes; "freq"; .data),
         Insulation: GenerateInsulationA("inv_"; .inverterIndexes; "Insulation"; .data),
         event: [
